@@ -1,11 +1,13 @@
+
 "use client";
 
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Briefcase, Zap, CheckCircle, Send } from "lucide-react";
+import { GraduationCap, Briefcase, Zap, CheckCircle, Send, Target } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar } from 'recharts';
 
 interface InternResultsProps {
   data: any;
@@ -21,16 +23,45 @@ export function InternResults({ data }: InternResultsProps) {
     });
   };
 
+  // Mock data for Radar chart if not provided by AI
+  const radarData = [
+    { subject: 'Technical', A: 85, fullMark: 100 },
+    { subject: 'Product', A: 65, fullMark: 100 },
+    { subject: 'Finance', A: 45, fullMark: 100 },
+    { subject: 'Growth', A: 75, fullMark: 100 },
+    { subject: 'Strategy', A: 90, fullMark: 100 },
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4">
-        <h2 className="text-2xl font-headline font-bold text-foreground">Talent Capability Report</h2>
-        <Card className="p-6 bg-card border-border/50">
+      <div className="flex flex-col md:flex-row gap-6">
+        <Card className="p-6 bg-card border-border/50 flex-1">
           <div className="flex items-center gap-2 mb-4">
             <Zap className="w-5 h-5 text-accent" />
             <h3 className="font-headline font-semibold">Strength Analysis</h3>
           </div>
           <p className="text-sm font-body leading-relaxed">{data.internStrengthAnalysis}</p>
+          <div className="mt-8 p-4 rounded-xl bg-secondary/30 border border-border/50">
+             <div className="flex items-center gap-2 mb-4">
+              <Target className="w-4 h-4 text-primary" />
+              <p className="text-[10px] font-headline font-bold uppercase tracking-widest text-muted-foreground">Neural Capability Map</p>
+            </div>
+            <div className="h-[200px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+                  <PolarGrid stroke="hsl(var(--border))" />
+                  <PolarAngleAxis dataKey="subject" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
+                  <Radar
+                    name="Skills"
+                    dataKey="A"
+                    stroke="hsl(var(--primary))"
+                    fill="hsl(var(--primary))"
+                    fillOpacity={0.6}
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </Card>
       </div>
 

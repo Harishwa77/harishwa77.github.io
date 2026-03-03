@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -5,13 +6,14 @@ import { ScoreGrid } from "../ScoreGrid";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CircleCheck, TriangleAlert, Lightbulb, TrendingUp, Globe, Loader2, ShieldCheck, Link2, MapPin, Navigation, Image as ImageIcon } from "lucide-react";
+import { CircleCheck, Lightbulb, TrendingUp, Globe, Loader2, ShieldCheck, Link2, MapPin, Navigation, Image as ImageIcon, Sparkles } from "lucide-react";
 import { useFirestore, useUser, useAuth } from "@/firebase";
 import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { initiateAnonymousSignIn } from "@/firebase/non-blocking-login";
 import { collection, serverTimestamp } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
+import { generateStartupVisual } from "@/ai/flows/startup-visualizer-flow";
 
 interface FounderResultsProps {
   data: any;
@@ -24,8 +26,9 @@ export function FounderResults({ data, input }: FounderResultsProps) {
   const db = useFirestore();
   const { toast } = useToast();
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isVisualizing, setIsVisualizing] = useState(false);
+  const [conceptArt, setConceptArt] = useState<string | null>(null);
 
-  // Clearbit Logo API is free for simple logo fetching via URL
   const companyDomain = input.companyUrl?.replace(/https?:\/\//, '').split('/')[0] || 'clearbit.com';
   const logoUrl = `https://logo.clearbit.com/${companyDomain}`;
 
@@ -43,7 +46,7 @@ export function FounderResults({ data, input }: FounderResultsProps) {
     try {
       const startupData = {
         founderId: user.uid,
-        name: `${input.industry || 'Unnamed'} Venture - ${Math.floor(Math.random() * 1000)}`,
+        name: `${input.industry || 'Unnamed'} Venture`,
         ideaDescription: data.improvedIdea || input.startupIdea,
         industry: input.industry || "General",
         targetMarket: input.targetMarket || "Global",
@@ -54,6 +57,7 @@ export function FounderResults({ data, input }: FounderResultsProps) {
         createdAt: serverTimestamp(),
         companyUrl: input.companyUrl || "",
         logoUrl: logoUrl,
+        conceptArt: conceptArt,
       };
 
       addDocumentNonBlocking(collection(db, "startups_for_investment"), startupData);
@@ -70,6 +74,29 @@ export function FounderResults({ data, input }: FounderResultsProps) {
       });
     } finally {
       setIsPublishing(false);
+    }
+  };
+
+  const handleGenerateArt = async () => {
+    setIsVisualizing(true);
+    try {
+      const result = await generateStartupVisual({
+        idea: data.improvedIdea || input.startupIdea,
+        industry: input.industry,
+      });
+      setConceptArt(result.imageUrl);
+      toast({
+        title: "Concept Art Generated",
+        description: "Neural engine has visualized your startup concept.",
+      });
+    } catch (e) {
+      toast({
+        variant: "destructive",
+        title: "Visualization Failed",
+        description: "The AI artist is currently busy. Please try again.",
+      });
+    } finally {
+      setIsVisualizing(false);
     }
   };
 
@@ -99,21 +126,42 @@ export function FounderResults({ data, input }: FounderResultsProps) {
            <Button 
             onClick={handlePublish} 
             disabled={isPublishing}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground font-headline font-bold uppercase tracking-wider text-xs gap-2 min-w-[220px] shadow-lg shadow-primary/20"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-headline font-bold uppercase tracking-wider text-xs gap-2 min-w-[200px]"
           >
-            {isPublishing ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : user ? (
-              <Globe className="w-4 h-4" />
-            ) : (
-              <ShieldCheck className="w-4 h-4" />
-            )}
-            {user ? "Publish to Investment Pool" : "Connect & Register"}
+            {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
+            Publish Venture
           </Button>
         </div>
       </header>
 
       <ScoreGrid scores={data.scores} />
+
+      {/* Hero Concept Art */}
+      <Card className="relative h-[300px] w-full overflow-hidden border-border/50 bg-[#0B0E14] group">
+        {conceptArt ? (
+          <Image src={conceptArt} alt="Startup Concept Art" fill className="object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4 p-8 text-center bg-gradient-to-b from-transparent to-black/40">
+            <Sparkles className="w-10 h-10 text-accent opacity-20 animate-pulse" />
+            <div className="space-y-1">
+              <h3 className="font-headline font-bold uppercase tracking-widest text-muted-foreground">Concept Visualization Engine</h3>
+              <p className="text-xs text-muted-foreground/60">Generate an AI-powered visual concept of your startup idea.</p>
+            </div>
+            <Button 
+              onClick={handleGenerateArt} 
+              disabled={isVisualizing} 
+              variant="outline" 
+              className="border-accent/30 hover:bg-accent/10 text-accent font-headline font-bold text-[10px] uppercase tracking-tighter"
+            >
+              {isVisualizing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}
+              {isVisualizing ? "Visualizing..." : "Generate Concept Art"}
+            </Button>
+          </div>
+        )}
+        <div className="absolute bottom-4 left-4 z-10">
+          <Badge className="bg-black/60 backdrop-blur-md border-white/10 text-[10px] uppercase font-headline">Neural Stream V4.0</Badge>
+        </div>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <Card className="p-6 bg-card border-border/50 lg:col-span-7 space-y-4">

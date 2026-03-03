@@ -1,0 +1,23 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "startup-hero",
+      "description": "A high-tech startup office with neural network visuals.",
+      "imageUrl": "https://picsum.photos/seed/tech-office/1200/600",
+      "imageHint": "tech office"
+    },
+    {
+      "id": "investor-dashboard",
+      "description": "Professional financial charts and data streams.",
+      "imageUrl": "https://picsum.photos/seed/finance/800/400",
+      "imageHint": "finance charts"
+    },
+    {
+      "id": "neural-network",
+      "description": "Glowing blue neural connections representing AI intelligence.",
+      "imageUrl": "https://picsum.photos/seed/neural/600/400",
+      "imageHint": "neural network"
+    }
+  ]
+}
