@@ -1,22 +1,85 @@
 "use client";
 
+import { useState } from "react";
 import { ScoreGrid } from "../ScoreGrid";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, AlertTriangle, Lightbulb, TrendingUp, Cpu, Map } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CheckCircle2, AlertTriangle, Lightbulb, TrendingUp, Cpu, Map, Globe, Loader2 } from "lucide-react";
+import { useFirestore, useUser } from "@/firebase";
+import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
+import { collection, serverTimestamp } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
 
 interface FounderResultsProps {
   data: any;
 }
 
 export function FounderResults({ data }: FounderResultsProps) {
+  const { user } = useUser();
+  const db = useFirestore();
+  const { toast } = useToast();
+  const [isPublishing, setIsPublishing] = useState(false);
+
+  const handlePublish = async () => {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Required",
+        description: "Please connect your wallet/account to publish.",
+      });
+      return;
+    }
+
+    setIsPublishing(true);
+    try {
+      // Create a simplified startup object for the investment pool
+      const startupData = {
+        founderId: user.uid,
+        name: `Startup ${Math.floor(Math.random() * 1000)}`, // Using random name for MVP
+        ideaDescription: data.improvedIdea,
+        industry: "General Tech",
+        targetMarket: "Global",
+        region: "Online",
+        initialBudget: 100000,
+        currentRevenue: 0,
+        teamSize: 1,
+        createdAt: serverTimestamp(),
+      };
+
+      addDocumentNonBlocking(collection(db, "startups_for_investment"), startupData);
+      
+      toast({
+        title: "Success",
+        description: "Your startup idea has been published to the investment pool!",
+      });
+    } catch (e) {
+      console.error("Publish Error:", e);
+      toast({
+        variant: "destructive",
+        title: "Publish Failed",
+        description: "Could not add to the investment pool.",
+      });
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h2 className="text-2xl font-headline font-bold text-foreground">Strategic Analysis Report</h2>
-        <ScoreGrid scores={data.scores} />
+        <Button 
+          onClick={handlePublish} 
+          disabled={isPublishing}
+          className="bg-primary hover:bg-primary/90 text-primary-foreground font-headline font-bold uppercase tracking-wider text-xs gap-2"
+        >
+          {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
+          Publish to Pool
+        </Button>
       </div>
+
+      <ScoreGrid scores={data.scores} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="p-6 bg-card border-border/50 space-y-4">

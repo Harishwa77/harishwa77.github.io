@@ -22,6 +22,8 @@ const InvestorInvestmentAnalysisInputSchema = z.object({
   startupData: z.string().describe('General data about the startup (e.g., traction, past performance).'),
   marketData: z.string().describe('Current market data and trends relevant to the startup.'),
   competitionData: z.string().describe('Information about competitors and the competitive landscape.'),
+  registeredStartupsCount: z.number().describe('The total number of startups currently registered in the platform pool.'),
+  investmentAmount: z.string().describe('The amount the investor is considering committing.'),
 });
 export type InvestorInvestmentAnalysisInput = z.infer<typeof InvestorInvestmentAnalysisInputSchema>;
 
@@ -37,6 +39,7 @@ const InvestorInvestmentAnalysisOutputSchema = z.object({
   recessionSurvivalProbability: z.string().describe('Simulation of recession survival probability.'),
   majorRisks: z.array(z.string()).describe('Identification of key risk factors.'),
   recommendation: z.string().describe('Investment recommendation: Invest / Observe / Avoid.'),
+  poolSaturationAnalysis: z.string().describe('Analysis of how this startup compares to the registered pool of competitors.'),
   scores: z.object({
     riskScore: z.number().min(0).max(100).describe('Risk score (0-100).'),
     returnPotential: z.number().min(0).max(100).describe('Return potential score (0-100).'),
@@ -53,25 +56,26 @@ const investorInvestmentAnalysisPrompt = ai.definePrompt({
   name: 'investorInvestmentAnalysisPrompt',
   input: { schema: InvestorInvestmentAnalysisInputSchema },
   output: { schema: InvestorInvestmentAnalysisOutputSchema },
-  prompt: `You are an Advanced AI Startup Ecosystem Engine operating as an AI Venture Capitalist within a Firebase-based platform. Your task is to provide a comprehensive investment attractiveness evaluation for a startup.
+  prompt: `You are an Advanced AI Startup Ecosystem Engine operating as an AI Venture Capitalist. 
+
+Your task is to provide a comprehensive investment attractiveness evaluation. You must also consider the context of the platform's startup pool.
 
 Instructions:
-1. Evaluate the investment attractiveness of the startup based on the provided data.
-2. Estimate realistic 1-year, 3-year, and 5-year growth projections.
-3. Estimate a conservative projected ROI percentage.
-4. Simulate the startup's probability of survival during an economic recession.
-5. Identify and list key risk factors.
-6. Provide a clear investment recommendation: "Invest", "Observe", or "Avoid".
-7. Assign measurable scores (0-100) for riskScore, returnPotential, and stabilityIndex.
+1. Evaluate the investment attractiveness for a potential check of {{{investmentAmount}}}.
+2. Consider that there are {{{registeredStartupsCount}}} other startups in the pool. Analyze how this specific startup stands out (poolSaturationAnalysis).
+3. Estimate realistic 1-year, 3-year, and 5-year growth projections.
+4. Estimate a conservative projected ROI percentage.
+5. Simulate the startup's probability of survival during an economic recession.
+6. Identify and list key risk factors.
+7. Provide a clear investment recommendation: "Invest", "Observe", or "Avoid".
+8. Assign measurable scores (0-100) for riskScore, returnPotential, and stabilityIndex.
 
 General Rules:
 - Be analytical and data-driven.
 - Provide realistic projections.
 - Avoid motivational fluff.
 - Think conservatively like a real investor.
-- Ensure numerical scores are justified logically.
-- Return ONLY valid JSON as per the specified output schema.
-- Do NOT include explanations or any additional text outside the JSON.
+- Return ONLY valid JSON.
 
 Startup Details:
 Startup Idea: {{{startupIdea}}}
@@ -94,6 +98,7 @@ const investorInvestmentAnalysisFlow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await investorInvestmentAnalysisPrompt(input);
-    return output!;
+    if (!output) throw new Error('Failed to generate investor analysis');
+    return output;
   }
 );

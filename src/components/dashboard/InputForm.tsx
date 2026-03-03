@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { EngineMode } from "./Dashboard";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,8 +10,10 @@ import { evaluateFounderStartup } from "@/ai/flows/founder-startup-evaluation";
 import { investorInvestmentAnalysis } from "@/ai/flows/investor-investment-analysis";
 import { internStartupMatching } from "@/ai/flows/intern-startup-matching";
 import { evolutionStartupMutation } from "@/ai/flows/evolution-startup-mutation";
-import { Loader2, Play } from "lucide-react";
+import { Loader2, Play, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useFirestore, useCollection, useMemoFirebase } from "@/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 interface InputFormProps {
   mode: EngineMode;
@@ -22,6 +24,9 @@ interface InputFormProps {
 
 export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: InputFormProps) {
   const { toast } = useToast();
+  const db = useFirestore();
+  const [startupsCount, setStartupsCount] = useState(0);
+
   const [formData, setFormData] = useState({
     startupIdea: "",
     industry: "",
@@ -35,8 +40,22 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
     internExperience: "",
     availableStartups: "InnovateTech, GreenHarvest, CodeCrafters",
     marketData: "",
-    competitionData: ""
+    competitionData: "",
+    investmentAmount: "50000"
   });
+
+  // Fetch count of startups in the pool
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "startups_for_investment"));
+        setStartupsCount(querySnapshot.size);
+      } catch (e) {
+        console.error("Error fetching startup count:", e);
+      }
+    };
+    fetchCount();
+  }, [db, isLoading]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -71,7 +90,9 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
           founderData: formData.founderData,
           startupData: formData.startupData,
           marketData: formData.marketData,
-          competitionData: formData.competitionData
+          competitionData: formData.competitionData,
+          registeredStartupsCount: startupsCount,
+          investmentAmount: formData.investmentAmount
         });
       } else if (mode === "intern") {
         result = await internStartupMatching({
@@ -169,6 +190,17 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
             <Input id="targetMarket" name="targetMarket" placeholder="SMEs" value={formData.targetMarket} onChange={handleChange} className="bg-background/50 border-border/50" />
           </div>
         </div>
+        
+        {mode === "investor" && (
+          <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-primary" />
+              <span className="text-xs font-headline font-bold uppercase">Pool Size</span>
+            </div>
+            <span className="text-sm font-code font-bold text-primary">{startupsCount} Startups</span>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="budget">Budget (USD)</Label>
@@ -179,6 +211,13 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
             <Input id="teamSize" name="teamSize" placeholder="4" value={formData.teamSize} onChange={handleChange} className="bg-background/50 border-border/50" />
           </div>
         </div>
+
+        {mode === "investor" && (
+          <div className="space-y-2">
+            <Label htmlFor="investmentAmount">Proposed Investment (USD)</Label>
+            <Input id="investmentAmount" name="investmentAmount" type="number" value={formData.investmentAmount} onChange={handleChange} className="bg-background/50 border-border/50 border-accent/30" />
+          </div>
+        )}
 
         {mode === "founder" && (
           <div className="space-y-2">
