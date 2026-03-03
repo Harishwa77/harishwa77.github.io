@@ -5,7 +5,7 @@ import { ScoreGrid } from "../ScoreGrid";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, AlertTriangle, Lightbulb, TrendingUp, Cpu, Map, Globe, Loader2, ShieldCheck, Link2 } from "lucide-react";
+import { CircleCheck, TriangleAlert, Lightbulb, TrendingUp, Cpu, Map, Globe, Loader2, ShieldCheck, Link2 } from "lucide-react";
 import { useFirestore, useUser, useAuth } from "@/firebase";
 import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { initiateAnonymousSignIn } from "@/firebase/non-blocking-login";
@@ -94,7 +94,7 @@ export function FounderResults({ data, input }: FounderResultsProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="p-6 bg-card border-border/50 space-y-4">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-accent" />
+            <CircleCheck className="w-5 h-5 text-accent" />
             <h3 className="font-headline font-semibold">Evaluation & Improved Concept</h3>
           </div>
           <div className="space-y-3">
@@ -126,7 +126,7 @@ export function FounderResults({ data, input }: FounderResultsProps) {
                 </div>
               </div>
             ))}
-            {!data.apiRecommendations && <p className="text-xs text-muted-foreground italic">Generating strategic API layer...</p>}
+            {!data.apiRecommendations && <p className="text-xs text-muted-foreground italic text-center py-4">Generating strategic API layer...</p>}
           </div>
         </Card>
       </div>
@@ -191,10 +191,10 @@ export function FounderResults({ data, input }: FounderResultsProps) {
         </Card>
         <Card className="p-6 bg-[#1A1111] border-destructive/20 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-10">
-            <AlertTriangle className="w-12 h-12 text-destructive" />
+            <TriangleAlert className="w-12 h-12 text-destructive" />
           </div>
           <div className="flex items-center gap-2 mb-4">
-            <AlertTriangle className="w-5 h-5 text-destructive" />
+            <TriangleAlert className="w-5 h-5 text-destructive" />
             <h3 className="font-headline font-semibold text-destructive uppercase tracking-tighter">Risk Assessment</h3>
           </div>
           <p className="text-sm font-body leading-relaxed text-destructive-foreground/80">{data.riskAnalysis}</p>

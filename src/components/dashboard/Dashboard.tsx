@@ -5,12 +5,13 @@ import { ModeSelector } from "./ModeSelector";
 import { InputForm } from "./InputForm";
 import { OutputDisplay } from "./OutputDisplay";
 import { Card } from "@/components/ui/card";
-import { Zap, Shield, TrendingUp, BrainCircuit, User as UserIcon, LogOut, LogIn } from "lucide-react";
+import { Zap, Shield, TrendingUp, BrainCircuit, User as UserIcon, LogOut, LogIn, Wifi, WifiOff } from "lucide-react";
 import { useUser, useAuth } from "@/firebase";
 import { initiateAnonymousSignIn } from "@/firebase/non-blocking-login";
 import { Button } from "@/components/ui/button";
 import { signOut } from "firebase/auth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export type EngineMode = "founder" | "investor" | "intern" | "evolution";
 
@@ -46,36 +47,51 @@ export function Dashboard() {
             <h1 className="text-3xl md:text-4xl font-headline font-bold tracking-tight text-foreground">
               ECHELON<span className="text-accent">AI</span>
             </h1>
+            <div className="ml-4 flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/50 border border-border/50">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger className="flex items-center gap-1.5">
+                    <Wifi className="w-3 h-3 text-green-500" />
+                    <span className="text-[10px] font-headline font-bold uppercase tracking-widest opacity-70">Neural Link Active</span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs">Primary GenAI Engine Connected</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
-          <p className="text-muted-foreground font-body max-w-xl">
+          <p className="text-muted-foreground font-body max-w-xl text-sm leading-relaxed">
             Advanced AI Startup Ecosystem Engine. Strategic intelligence for founders, investors, and talent.
           </p>
         </div>
         
         <div className="flex flex-col items-end gap-4">
-          {isUserLoading ? (
-            <div className="h-10 w-32 bg-secondary animate-pulse rounded-lg" />
-          ) : user ? (
-            <div className="flex items-center gap-3 bg-secondary/30 p-2 rounded-xl border border-border/50">
-              <Avatar className="h-8 w-8 border border-border">
-                <AvatarFallback className="bg-primary/20 text-primary">
-                  <UserIcon className="h-4 w-4" />
-                </AvatarFallback>
-              </Avatar>
-              <div className="text-left hidden sm:block">
-                <p className="text-xs font-headline font-bold uppercase tracking-tighter opacity-70">Authenticated</p>
-                <p className="text-[10px] font-code text-accent truncate max-w-[100px]">{user.uid}</p>
+          <div className="flex items-center gap-3">
+            {isUserLoading ? (
+              <div className="h-10 w-32 bg-secondary animate-pulse rounded-lg" />
+            ) : user ? (
+              <div className="flex items-center gap-3 bg-secondary/30 p-2 rounded-xl border border-border/50">
+                <Avatar className="h-8 w-8 border border-border">
+                  <AvatarFallback className="bg-primary/20 text-primary">
+                    <UserIcon className="h-4 w-4" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="text-left hidden sm:block">
+                  <p className="text-xs font-headline font-bold uppercase tracking-tighter opacity-70">Authenticated</p>
+                  <p className="text-[10px] font-code text-accent truncate max-w-[100px]">{user.uid}</p>
+                </div>
+                <Button variant="ghost" size="icon" onClick={handleSignOut} className="h-8 w-8 text-muted-foreground hover:text-destructive">
+                  <LogOut className="h-4 w-4" />
+                </Button>
               </div>
-              <Button variant="ghost" size="icon" onClick={handleSignOut} className="h-8 w-8 text-muted-foreground hover:text-destructive">
-                <LogOut className="h-4 w-4" />
+            ) : (
+              <Button onClick={handleSignIn} variant="outline" className="gap-2 font-headline uppercase tracking-wider text-xs border-primary/50 hover:bg-primary/10">
+                <LogIn className="h-4 w-4" />
+                Secure Connect
               </Button>
-            </div>
-          ) : (
-            <Button onClick={handleSignIn} variant="outline" className="gap-2 font-headline uppercase tracking-wider text-xs border-primary/50 hover:bg-primary/10">
-              <LogIn className="h-4 w-4" />
-              Secure Connect
-            </Button>
-          )}
+            )}
+          </div>
           <ModeSelector currentMode={mode} onModeChange={(m) => {
             setMode(m);
             setResults(null);

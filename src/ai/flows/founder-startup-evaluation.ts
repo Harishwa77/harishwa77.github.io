@@ -76,15 +76,16 @@ Founder Data: {{{founderData}}}
 Based on the provided input, perform the following tasks and return ONLY valid JSON that strictly adheres to the output schema.
 CRITICAL: You must set the "mode" property in the output JSON to exactly "founder".
 
-1.  **Evaluate Clarity and Uniqueness**: Provide a direct and concise evaluation.
-2.  **Suggest 3 Innovation Improvements**: Propose three distinct and actionable innovation improvements.
-3.  **Optimize Revenue Model**: Suggest specific, data-backed strategies.
-4.  **Suggest Technical Stack & API Recommendations**: Recommend a technical stack AND at least 3 high-value external APIs (e.g., Stripe for payments, Plaid for fintech, Twilio for comms, etc.) that would make the venture more "attractive" to investors by increasing automation or data richness.
-5.  **Generate 3-Month Execution Roadmap**: Create a realistic 3-month execution roadmap.
-6.  **Provide Market & Risk Analysis**: Deliver thorough, conservative assessments.
-7.  **Score the Startup (0-100)**.
+Tasks:
+1. Evaluate Clarity and Uniqueness: Provide a direct and concise evaluation.
+2. Suggest 3 Innovation Improvements: Propose three distinct and actionable innovation improvements.
+3. Optimize Revenue Model: Suggest specific, data-backed strategies.
+4. Suggest Technical Stack & API Recommendations: Recommend a technical stack AND at least 3 high-value external APIs (e.g., Stripe, Plaid, Twilio, etc.) that increase automation or data richness.
+5. Generate 3-Month Execution Roadmap: Create a realistic 3-month roadmap.
+6. Provide Market & Risk Analysis: Deliver thorough, conservative assessments.
+7. Score the Startup (0-100).
 
-Remember to be analytical, avoid fluff, and return ONLY valid JSON.`,
+Return ONLY valid JSON.`,
 });
 
 const founderStartupEvaluationFlow = ai.defineFlow(

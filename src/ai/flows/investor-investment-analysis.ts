@@ -72,11 +72,14 @@ Instructions:
 2. Provide a 5-year numerical growth projection for valuation and revenue (in $1000s). This will be used for a line chart. Use exactly 5 data points (Year 1, 2, 3, 4, 5).
 3. Estimate ROI, survival odds, and risks.
 4. Assign measurable scores (0-100).
+5. Compare this startup to the existing pool of {{{registeredStartupsCount}}} startups.
 
 Startup Details:
 Idea: {{{startupIdea}}}
 Revenue: {{{startupData}}}
-Industry: {{{industry}}}`,
+Industry: {{{industry}}}
+
+Return ONLY valid JSON.`,
 });
 
 const investorInvestmentAnalysisFlow = ai.defineFlow(

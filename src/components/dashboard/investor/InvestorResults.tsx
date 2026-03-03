@@ -3,11 +3,10 @@
 import { ScoreGrid } from "../ScoreGrid";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ShieldAlert, TrendingUp, BarChart4, Gavel, HandCoins, Users, LineChart as ChartIcon } from "lucide-react";
+import { ShieldAlert, TrendingUp, Gavel, HandCoins, Users, LineChart as ChartIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 interface InvestorResultsProps {
   data: any;
@@ -17,6 +16,7 @@ export function InvestorResults({ data }: InvestorResultsProps) {
   const { toast } = useToast();
 
   const getRecommendationColor = (rec: string) => {
+    if (!rec) return "bg-secondary text-muted-foreground";
     const r = rec.toLowerCase();
     if (r.includes("invest")) return "bg-green-500/10 text-green-500 border-green-500/20";
     if (r.includes("avoid")) return "bg-destructive/10 text-destructive border-destructive/20";
@@ -47,7 +47,7 @@ export function InvestorResults({ data }: InvestorResultsProps) {
         </div>
         <div className="flex items-center gap-3">
           <Badge className={getRecommendationColor(data.recommendation)}>
-            {data.recommendation}
+            {data.recommendation || "Pending"}
           </Badge>
           <Button onClick={handleInvest} className="bg-accent hover:bg-accent/90 text-accent-foreground font-headline font-bold uppercase tracking-wider text-xs h-10 px-6 shadow-lg shadow-accent/20">
             <HandCoins className="w-4 h-4 mr-2" />
