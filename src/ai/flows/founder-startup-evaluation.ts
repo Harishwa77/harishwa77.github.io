@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview A Genkit flow for evaluating a founder's startup idea.
+ * @fileOverview A Genkit flow for evaluating a founder's startup idea with Geospatial Intelligence.
  */
 
 import { ai } from '@/ai/genkit';
@@ -33,6 +33,7 @@ const FounderStartupEvaluationOutputSchema = z.object({
     purpose: z.string().describe('Why this API is crucial for this startup.'),
     benefit: z.string().describe('The strategic advantage it provides.')
   })).describe('Strategic external APIs to integrate.'),
+  geospatialStrategy: z.string().describe('Location-based strategy and market dynamics for the specific region.'),
   roadmap_3_months: z.array(z.string()).describe('A 3-month execution roadmap with key milestones.'),
   marketAnalysis: z.string().describe('A data-driven market analysis.'),
   riskAnalysis: z.string().describe('A comprehensive risk analysis.'),
@@ -86,10 +87,11 @@ Tasks:
 1. Evaluate Clarity and Uniqueness.
 2. Suggest 3 Innovation Improvements.
 3. Optimize Revenue Model.
-4. Suggest Technical Stack & API Recommendations (Include at least 3 high-value APIs).
-5. Generate 3-Month Execution Roadmap.
-6. Provide Market & Risk Analysis: Grounded in the provided news and market benchmarks.
-7. Score the Startup (0-100).
+4. Geospatial Intelligence: Analyze the provided Region ({{{region}}}). Suggest how location-specific data (POI density, local demographics, regional regulations) affects the "solutions" and execution strategy.
+5. Suggest Technical Stack & API Recommendations (Include at least 3 high-value APIs).
+6. Generate 3-Month Execution Roadmap.
+7. Provide Market & Risk Analysis.
+8. Score the Startup (0-100).
 
 Return ONLY valid JSON.`,
 });

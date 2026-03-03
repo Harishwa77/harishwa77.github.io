@@ -13,8 +13,9 @@ Advanced AI Startup Accelerator, VC, and Market Analyst.
 
 To enable real-time intelligence, add these to your `.env`:
 
-- `NEWS_API_KEY`: `a5c3789a-6899-4e34-9e66-614bf923aedc` (Integrated)
-- `ALPHA_VANTAGE_API_KEY`: `LBFN1L9QJ85O2W4Z` (Integrated)
+- `NEWS_API_KEY`: Integrated for real-time headlines.
+- `ALPHA_VANTAGE_API_KEY`: Integrated for stock benchmarks.
+- `GOOGLE_MAPS_API_KEY`: Recommended for Geospatial Intelligence.
 - `GEMINI_API_KEY`: Required for the core Genkit AI Engine.
 
 ## 🛠 Tech Stack

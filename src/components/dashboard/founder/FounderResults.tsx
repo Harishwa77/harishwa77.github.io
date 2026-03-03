@@ -5,7 +5,7 @@ import { ScoreGrid } from "../ScoreGrid";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CircleCheck, TriangleAlert, Lightbulb, TrendingUp, Cpu, Map, Globe, Loader2, ShieldCheck, Link2 } from "lucide-react";
+import { CircleCheck, TriangleAlert, Lightbulb, TrendingUp, Cpu, Map, Globe, Loader2, ShieldCheck, Link2, MapPin } from "lucide-react";
 import { useFirestore, useUser, useAuth } from "@/firebase";
 import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { initiateAnonymousSignIn } from "@/firebase/non-blocking-login";
@@ -73,20 +73,22 @@ export function FounderResults({ data, input }: FounderResultsProps) {
           <h2 className="text-2xl font-headline font-bold text-foreground">Strategic Analysis Report</h2>
           <p className="text-sm text-muted-foreground font-body">Multivariate startup viability and execution assessment.</p>
         </div>
-        <Button 
-          onClick={handlePublish} 
-          disabled={isPublishing}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground font-headline font-bold uppercase tracking-wider text-xs gap-2 min-w-[220px] shadow-lg shadow-primary/20"
-        >
-          {isPublishing ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : user ? (
-            <Globe className="w-4 h-4" />
-          ) : (
-            <ShieldCheck className="w-4 h-4" />
-          )}
-          {user ? "Publish to Investment Pool" : "Connect & Register"}
-        </Button>
+        <div className="flex gap-2">
+           <Button 
+            onClick={handlePublish} 
+            disabled={isPublishing}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-headline font-bold uppercase tracking-wider text-xs gap-2 min-w-[220px] shadow-lg shadow-primary/20"
+          >
+            {isPublishing ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : user ? (
+              <Globe className="w-4 h-4" />
+            ) : (
+              <ShieldCheck className="w-4 h-4" />
+            )}
+            {user ? "Publish to Investment Pool" : "Connect & Register"}
+          </Button>
+        </div>
       </header>
 
       <ScoreGrid scores={data.scores} />
@@ -111,22 +113,14 @@ export function FounderResults({ data, input }: FounderResultsProps) {
 
         <Card className="p-6 bg-card border-border/50 space-y-4">
           <div className="flex items-center gap-2">
-            <Link2 className="w-5 h-5 text-accent" />
-            <h3 className="font-headline font-semibold">Strategic API Integrations</h3>
+            <MapPin className="w-5 h-5 text-accent" />
+            <h3 className="font-headline font-semibold">Geospatial Intelligence</h3>
           </div>
-          <div className="grid grid-cols-1 gap-3">
-            {data.apiRecommendations?.map((api: any, i: number) => (
-              <div key={i} className="p-3 rounded-lg bg-secondary/30 border border-border/30 flex items-start gap-3">
-                <div className="bg-accent/20 text-accent p-1.5 rounded-md mt-0.5">
-                  <Cpu className="w-3.5 h-3.5" />
-                </div>
-                <div>
-                  <p className="text-sm font-headline font-bold">{api.name}</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">{api.purpose}</p>
-                </div>
-              </div>
-            ))}
-            {!data.apiRecommendations && <p className="text-xs text-muted-foreground italic text-center py-4">Generating strategic API layer...</p>}
+          <div className="p-4 rounded-xl bg-accent/5 border border-accent/20">
+            <p className="text-[10px] text-accent mb-2 font-headline uppercase tracking-wider font-bold">Regional Strategy: {input.region}</p>
+            <p className="text-sm font-body leading-relaxed text-foreground/80">
+              {data.geospatialStrategy}
+            </p>
           </div>
         </Card>
       </div>
@@ -134,8 +128,23 @@ export function FounderResults({ data, input }: FounderResultsProps) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="p-6 bg-card border-border/50 space-y-4">
           <div className="flex items-center gap-2">
+            <Link2 className="w-5 h-5 text-accent" />
+            <h3 className="font-headline font-semibold">Strategic APIs</h3>
+          </div>
+          <div className="space-y-3">
+            {data.apiRecommendations?.map((api: any, i: number) => (
+              <div key={i} className="flex flex-col gap-0.5">
+                <p className="text-xs font-headline font-bold text-accent">{api.name}</p>
+                <p className="text-[10px] text-muted-foreground">{api.benefit}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card className="p-6 bg-card border-border/50 space-y-4">
+          <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-accent" />
-            <h3 className="font-headline font-semibold">Revenue Optimization</h3>
+            <h3 className="font-headline font-semibold">Revenue Model</h3>
           </div>
           <p className="text-sm font-body leading-relaxed text-muted-foreground">{data.revenueModelOptimization}</p>
         </Card>
@@ -147,25 +156,11 @@ export function FounderResults({ data, input }: FounderResultsProps) {
           </div>
           <ul className="space-y-2">
             {data.innovationSuggestions.map((suggestion: string, i: number) => (
-              <li key={i} className="flex gap-2 text-[13px] font-body text-muted-foreground">
-                <span className="text-accent font-bold">•</span> {suggestion}
+              <li key={i} className="text-[12px] font-body text-muted-foreground border-l-2 border-accent/30 pl-3">
+                {suggestion}
               </li>
             ))}
           </ul>
-        </Card>
-
-        <Card className="p-6 bg-card border-border/50 space-y-4">
-          <div className="flex items-center gap-2">
-            <Cpu className="w-5 h-5 text-accent" />
-            <h3 className="font-headline font-semibold">Technical Stack</h3>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {data.technicalStack.map((tech: string, i: number) => (
-              <Badge key={i} variant="outline" className="bg-secondary/50 font-code text-[10px] py-1 border-border/50">
-                {tech}
-              </Badge>
-            ))}
-          </div>
         </Card>
       </div>
 
@@ -203,3 +198,4 @@ export function FounderResults({ data, input }: FounderResultsProps) {
     </div>
   );
 }
+
