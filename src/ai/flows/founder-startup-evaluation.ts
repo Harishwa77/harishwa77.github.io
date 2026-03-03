@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A Genkit flow for evaluating a founder's startup idea.
@@ -9,6 +10,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { fetchIndustryNews } from '@/services/news-service';
 
 const FounderStartupEvaluationInputSchema = z.object({
   startupIdea: z.string().describe('The core idea of the startup.'),
@@ -56,7 +58,7 @@ export async function evaluateFounderStartup(
 
 const founderStartupEvaluationPrompt = ai.definePrompt({
   name: 'founderStartupEvaluationPrompt',
-  input: { schema: FounderStartupEvaluationInputSchema },
+  input: { schema: FounderStartupEvaluationInputSchema.extend({ realTimeNews: z.string().optional() }) },
   output: { schema: FounderStartupEvaluationOutputSchema },
   prompt: `You are an Advanced AI Startup Ecosystem Engine, acting as an AI Startup Accelerator and AI Product Strategist.
 
@@ -72,6 +74,8 @@ Team Size: {{{teamSize}}}
 Founder Data: {{{founderData}}}
 {{#if marketData}}Market Data: {{{marketData}}}{{/if}}
 {{#if competitionData}}Competition Data: {{{competitionData}}}{{/if}}
+{{#if realTimeNews}}Real-time Industry News Context:
+{{{realTimeNews}}}{{/if}}
 
 Based on the provided input, perform the following tasks and return ONLY valid JSON that strictly adheres to the output schema.
 CRITICAL: You must set the "mode" property in the output JSON to exactly "founder".
@@ -82,7 +86,7 @@ Tasks:
 3. Optimize Revenue Model: Suggest specific, data-backed strategies.
 4. Suggest Technical Stack & API Recommendations: Recommend a technical stack AND at least 3 high-value external APIs (e.g., Stripe, Plaid, Twilio, etc.) that increase automation or data richness.
 5. Generate 3-Month Execution Roadmap: Create a realistic 3-month roadmap.
-6. Provide Market & Risk Analysis: Deliver thorough, conservative assessments.
+6. Provide Market & Risk Analysis: Deliver thorough, conservative assessments grounded in current trends provided in the news context.
 7. Score the Startup (0-100).
 
 Return ONLY valid JSON.`,
@@ -95,7 +99,14 @@ const founderStartupEvaluationFlow = ai.defineFlow(
     outputSchema: FounderStartupEvaluationOutputSchema,
   },
   async (input) => {
-    const { output } = await founderStartupEvaluationPrompt(input);
+    // Fetch industry news to ground the AI in real-time context
+    const realTimeNews = await fetchIndustryNews(input.industry);
+
+    const { output } = await founderStartupEvaluationPrompt({
+      ...input,
+      realTimeNews,
+    });
+    
     if (!output) {
       throw new Error('Failed to generate founder startup evaluation.');
     }

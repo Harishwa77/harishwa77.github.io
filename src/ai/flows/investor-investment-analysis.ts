@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI Venture Capitalist agent for evaluating startup investment attractiveness.
@@ -9,6 +10,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { fetchIndustryNews } from '@/services/news-service';
 
 const InvestorInvestmentAnalysisInputSchema = z.object({
   mode: z.literal('investor'),
@@ -59,7 +61,7 @@ export async function investorInvestmentAnalysis(input: InvestorInvestmentAnalys
 
 const investorInvestmentAnalysisPrompt = ai.definePrompt({
   name: 'investorInvestmentAnalysisPrompt',
-  input: { schema: InvestorInvestmentAnalysisInputSchema },
+  input: { schema: InvestorInvestmentAnalysisInputSchema.extend({ realTimeNews: z.string().optional() }) },
   output: { schema: InvestorInvestmentAnalysisOutputSchema },
   prompt: `You are an Advanced AI Startup Ecosystem Engine operating as an AI Venture Capitalist. 
 
@@ -70,7 +72,7 @@ CRITICAL: You must set the "mode" property in the output JSON to exactly "invest
 Instructions:
 1. Evaluate attractiveness for a check of {{{investmentAmount}}}.
 2. Provide a 5-year numerical growth projection for valuation and revenue (in $1000s). This will be used for a line chart. Use exactly 5 data points (Year 1, 2, 3, 4, 5).
-3. Estimate ROI, survival odds, and risks.
+3. Estimate ROI, survival odds, and risks based on current market sentiment.
 4. Assign measurable scores (0-100).
 5. Compare this startup to the existing pool of {{{registeredStartupsCount}}} startups.
 
@@ -78,6 +80,9 @@ Startup Details:
 Idea: {{{startupIdea}}}
 Revenue: {{{startupData}}}
 Industry: {{{industry}}}
+
+{{#if realTimeNews}}Real-time Industry Sentiment & Headlines:
+{{{realTimeNews}}}{{/if}}
 
 Return ONLY valid JSON.`,
 });
@@ -89,7 +94,14 @@ const investorInvestmentAnalysisFlow = ai.defineFlow(
     outputSchema: InvestorInvestmentAnalysisOutputSchema,
   },
   async (input) => {
-    const { output } = await investorInvestmentAnalysisPrompt(input);
+    // Fetch industry news to ground the investor analysis in real-time context
+    const realTimeNews = await fetchIndustryNews(input.industry);
+
+    const { output } = await investorInvestmentAnalysisPrompt({
+      ...input,
+      realTimeNews,
+    });
+    
     if (!output) throw new Error('Failed to generate investor analysis');
     return output;
   }
