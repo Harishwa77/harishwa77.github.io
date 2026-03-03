@@ -1,19 +1,26 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { EngineMode } from "./Dashboard";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { evaluateFounderStartup } from "@/ai/flows/founder-startup-evaluation";
 import { investorInvestmentAnalysis } from "@/ai/flows/investor-investment-analysis";
 import { internStartupMatching } from "@/ai/flows/intern-startup-matching";
 import { evolutionStartupMutation } from "@/ai/flows/evolution-startup-mutation";
-import { Loader2, Play, Users } from "lucide-react";
+import { Loader2, Play, Users, Briefcase } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useFirestore, useCollection, useMemoFirebase } from "@/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection } from "firebase/firestore";
 
 interface InputFormProps {
   mode: EngineMode;
@@ -25,7 +32,13 @@ interface InputFormProps {
 export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: InputFormProps) {
   const { toast } = useToast();
   const db = useFirestore();
-  const [startupsCount, setStartupsCount] = useState(0);
+
+  const startupsQuery = useMemoFirebase(() => {
+    return collection(db, "startups_for_investment");
+  }, [db]);
+
+  const { data: startupPool, isLoading: isPoolLoading } = useCollection(startupsQuery);
+  const [selectedStartupId, setSelectedStartupId] = useState<string>("");
 
   const [formData, setFormData] = useState({
     startupIdea: "",
@@ -44,18 +57,9 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
     investmentAmount: "50000"
   });
 
-  // Fetch count of startups in the pool
-  useEffect(() => {
-    const fetchCount = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "startups_for_investment"));
-        setStartupsCount(querySnapshot.size);
-      } catch (e) {
-        console.error("Error fetching startup count:", e);
-      }
-    };
-    fetchCount();
-  }, [db, isLoading]);
+  const selectedStartup = useMemo(() => {
+    return startupPool?.find(s => s.id === selectedStartupId);
+  }, [startupPool, selectedStartupId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -79,19 +83,22 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
           competitionData: formData.competitionData
         });
       } else if (mode === "investor") {
+        if (!selectedStartup) {
+          throw new Error("Please select a startup from the pool.");
+        }
         result = await investorInvestmentAnalysis({
           mode: "investor",
-          startupIdea: formData.startupIdea,
-          industry: formData.industry,
-          targetMarket: formData.targetMarket,
-          region: formData.region,
-          budget: formData.budget,
-          teamSize: formData.teamSize,
-          founderData: formData.founderData,
-          startupData: formData.startupData,
+          startupIdea: selectedStartup.ideaDescription,
+          industry: selectedStartup.industry,
+          targetMarket: selectedStartup.targetMarket,
+          region: selectedStartup.region,
+          budget: selectedStartup.initialBudget?.toString() || "0",
+          teamSize: selectedStartup.teamSize?.toString() || "1",
+          founderData: "Registered Founder Data", // In a real app, you'd fetch the founder profile
+          startupData: `Current Revenue: $${selectedStartup.currentRevenue}`,
           marketData: formData.marketData,
           competitionData: formData.competitionData,
-          registeredStartupsCount: startupsCount,
+          registeredStartupsCount: startupPool?.length || 0,
           investmentAmount: formData.investmentAmount
         });
       } else if (mode === "intern") {
@@ -115,12 +122,12 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
         });
       }
       onResultsReceived(result);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Engine Error:", error);
       toast({
         variant: "destructive",
         title: "Engine Error",
-        description: "Failed to process the request. Please check inputs."
+        description: error.message || "Failed to process the request."
       });
     } finally {
       onLoading(false);
@@ -167,6 +174,68 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
       );
     }
 
+    if (mode === "investor") {
+      return (
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>Select Startup from Pool</Label>
+            <Select onValueChange={setSelectedStartupId} value={selectedStartupId}>
+              <SelectTrigger className="bg-background/50 border-border/50">
+                <SelectValue placeholder={isPoolLoading ? "Loading pool..." : "Select a startup"} />
+              </SelectTrigger>
+              <SelectContent>
+                {startupPool?.map((startup) => (
+                  <SelectItem key={startup.id} value={startup.id}>
+                    {startup.name} ({startup.industry})
+                  </SelectItem>
+                ))}
+                {(!startupPool || startupPool.length === 0) && !isPoolLoading && (
+                  <SelectItem value="none" disabled>No startups in pool</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {selectedStartup && (
+            <div className="p-4 rounded-lg bg-secondary/30 border border-border/50 space-y-2">
+              <div className="flex items-center gap-2 text-accent">
+                <Briefcase className="w-4 h-4" />
+                <span className="text-xs font-headline font-bold uppercase">Startup Data</span>
+              </div>
+              <p className="text-sm font-medium">{selectedStartup.name}</p>
+              <p className="text-xs text-muted-foreground line-clamp-2 italic">"{selectedStartup.ideaDescription}"</p>
+              <div className="flex justify-between items-center pt-2">
+                <span className="text-[10px] text-muted-foreground uppercase">Revenue</span>
+                <span className="text-sm font-code font-bold text-primary">${selectedStartup.currentRevenue.toLocaleString()}</span>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Label htmlFor="investmentAmount">Proposed Investment (USD)</Label>
+            <Input 
+              id="investmentAmount" 
+              name="investmentAmount" 
+              type="number" 
+              value={formData.investmentAmount} 
+              onChange={handleChange} 
+              className="bg-background/50 border-border/50 border-accent/30" 
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="marketData">Contextual Market Data (Optional)</Label>
+            <Textarea id="marketData" name="marketData" placeholder="Latest industry trends..." value={formData.marketData} onChange={handleChange} className="bg-background/50 border-border/50" />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="competitionData">Contextual Competition Data (Optional)</Label>
+            <Textarea id="competitionData" name="competitionData" placeholder="Recent competitor moves..." value={formData.competitionData} onChange={handleChange} className="bg-background/50 border-border/50" />
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-4">
         <div className="space-y-2">
@@ -190,16 +259,6 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
             <Input id="targetMarket" name="targetMarket" placeholder="SMEs" value={formData.targetMarket} onChange={handleChange} className="bg-background/50 border-border/50" />
           </div>
         </div>
-        
-        {mode === "investor" && (
-          <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-primary" />
-              <span className="text-xs font-headline font-bold uppercase">Pool Size</span>
-            </div>
-            <span className="text-sm font-code font-bold text-primary">{startupsCount} Startups</span>
-          </div>
-        )}
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -212,13 +271,6 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
           </div>
         </div>
 
-        {mode === "investor" && (
-          <div className="space-y-2">
-            <Label htmlFor="investmentAmount">Proposed Investment (USD)</Label>
-            <Input id="investmentAmount" name="investmentAmount" type="number" value={formData.investmentAmount} onChange={handleChange} className="bg-background/50 border-border/50 border-accent/30" />
-          </div>
-        )}
-
         {mode === "founder" && (
           <div className="space-y-2">
             <Label htmlFor="founderData">Founder Experience</Label>
@@ -226,15 +278,12 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
           </div>
         )}
 
-        {mode === "investor" && (
-          <div className="space-y-2">
-            <Label htmlFor="startupData">Traction Data</Label>
-            <Textarea id="startupData" name="startupData" placeholder="Current revenue, users, etc." value={formData.startupData} onChange={handleChange} className="bg-background/50 border-border/50" />
-          </div>
-        )}
-
-        {(mode === "investor" || mode === "evolution") && (
+        {mode === "evolution" && (
           <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="startupData">Traction Data</Label>
+              <Textarea id="startupData" name="startupData" placeholder="Current revenue, users, etc." value={formData.startupData} onChange={handleChange} className="bg-background/50 border-border/50" />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="marketData">Market Data</Label>
               <Textarea id="marketData" name="marketData" placeholder="Trends, market size..." value={formData.marketData} onChange={handleChange} className="bg-background/50 border-border/50" />
@@ -255,7 +304,7 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
       <Button 
         type="submit" 
         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-headline font-semibold h-12 gap-2"
-        disabled={isLoading}
+        disabled={isLoading || (mode === "investor" && !selectedStartupId)}
       >
         {isLoading ? (
           <>
