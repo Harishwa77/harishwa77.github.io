@@ -6,7 +6,7 @@ import { InputForm } from "./InputForm";
 import { OutputDisplay } from "./OutputDisplay";
 import { Chatbot } from "./Chatbot";
 import { Card } from "@/components/ui/card";
-import { Zap, Shield, TrendingUp, BrainCircuit, User as UserIcon, LogOut, LogIn, Wifi } from "lucide-react";
+import { Zap, Shield, TrendingUp, BrainCircuit, User as UserIcon, LogOut, LogIn, Wifi, Cloud } from "lucide-react";
 import { useUser, useAuth } from "@/firebase";
 import { initiateAnonymousSignIn } from "@/firebase/non-blocking-login";
 import { Button } from "@/components/ui/button";
@@ -57,6 +57,19 @@ export function Dashboard() {
                   </TooltipTrigger>
                   <TooltipContent>
                     <p className="text-xs">Primary GenAI Engine Connected</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+               <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger className="flex items-center gap-1.5">
+                    <Cloud className="w-3 h-3 text-primary" />
+                    <span className="text-[10px] font-headline font-bold uppercase tracking-widest opacity-70">Cloud Ready</span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs">Firebase App Hosting Configured</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
