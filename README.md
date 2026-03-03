@@ -7,22 +7,26 @@ Advanced AI Startup Accelerator, VC, and Market Analyst.
 
 1. **Connect**: Click "Secure Connect" in the header to establish your session.
 2. **Analyze**: 
-   - **Founder Mode**: Enter your idea to get a 3-month roadmap, API recommendations, and **Geospatial Intelligence** analysis.
-   - **Investor Mode**: Select a startup from the public pool and run a deep-dive investment memo with 5-year growth charts.
-   - **Talent Mode**: Enter your skills to be semantically matched with the top 3 startups in the EchelonAI pool.
-3. **Register**: Founders can "Publish" their analyzed startups directly to the public pool.
+   - **Founder Mode**: Enter your idea to get a 3-month roadmap, API recommendations, and **Geospatial Intelligence**.
+   - **Investor Mode**: Select a startup from the public pool and run a deep-dive investment memo.
+   - **Talent Mode**: Match your skills semantically with top startups.
+3. **Register**: Founders can "Publish" analyzed startups to the public pool.
 
-## 🔑 Configured Intelligence Layers
+## 🔑 Intelligence Layers
 
-- **NewsAPI**: Integrated for real-time industry sentiment (Live).
-- **Alpha Vantage**: Integrated for sector benchmarks and financial projections (Live).
-- **Geospatial Strategy**: Enabled for regional market analysis (Active).
+### Active
+- **NewsAPI**: Real-time industry sentiment analysis.
+- **Alpha Vantage**: Financial benchmarks and sector performance.
+
+### Recommended (To Add)
+- **Clearbit API** (`CLEARBIT_API_KEY`): Identity enrichment (Logos, Bio).
+- **Unsplash API** (`UNSPLASH_ACCESS_KEY`): High-quality startup imagery.
+- **Serper.dev API** (`SERPER_API_KEY`): Live competitor web-search.
 
 ## 🛠 Tech Stack
 
-- **Framework**: Next.js 15 (App Router)
+- **Framework**: Next.js 15
 - **AI**: Genkit with Google Gemini
-- **Intelligence**: NewsAPI + Alpha Vantage + Geospatial Logic
-- **Database**: Firebase Firestore (Startups, Analysis, Profiles)
-- **Auth**: Firebase Authentication (Anonymous/Secure)
+- **Intelligence**: NewsAPI + Alpha Vantage
+- **Database**: Firebase Firestore
 - **UI**: Tailwind CSS + ShadCN UI + Recharts

@@ -5,12 +5,13 @@ import { ScoreGrid } from "../ScoreGrid";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CircleCheck, TriangleAlert, Lightbulb, TrendingUp, Cpu, Map, Globe, Loader2, ShieldCheck, Link2, MapPin, Navigation } from "lucide-react";
+import { CircleCheck, TriangleAlert, Lightbulb, TrendingUp, Globe, Loader2, ShieldCheck, Link2, MapPin, Navigation, Image as ImageIcon } from "lucide-react";
 import { useFirestore, useUser, useAuth } from "@/firebase";
 import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { initiateAnonymousSignIn } from "@/firebase/non-blocking-login";
 import { collection, serverTimestamp } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 interface FounderResultsProps {
   data: any;
@@ -23,6 +24,10 @@ export function FounderResults({ data, input }: FounderResultsProps) {
   const db = useFirestore();
   const { toast } = useToast();
   const [isPublishing, setIsPublishing] = useState(false);
+
+  // Clearbit Logo API is free for simple logo fetching via URL
+  const companyDomain = input.companyUrl?.replace(/https?:\/\//, '').split('/')[0] || 'clearbit.com';
+  const logoUrl = `https://logo.clearbit.com/${companyDomain}`;
 
   const handlePublish = async () => {
     if (!user) {
@@ -47,6 +52,8 @@ export function FounderResults({ data, input }: FounderResultsProps) {
         currentRevenue: 0,
         teamSize: parseInt(input.teamSize) || 1,
         createdAt: serverTimestamp(),
+        companyUrl: input.companyUrl || "",
+        logoUrl: logoUrl,
       };
 
       addDocumentNonBlocking(collection(db, "startups_for_investment"), startupData);
@@ -69,9 +76,24 @@ export function FounderResults({ data, input }: FounderResultsProps) {
   return (
     <div className="space-y-6">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-headline font-bold text-foreground">Strategic Analysis Report</h2>
-          <p className="text-sm text-muted-foreground font-body">Multivariate startup viability and execution assessment.</p>
+        <div className="flex items-center gap-4">
+          <div className="relative w-16 h-16 rounded-xl bg-secondary/50 border border-border/50 overflow-hidden flex items-center justify-center">
+            {input.companyUrl ? (
+              <Image 
+                src={logoUrl} 
+                alt="Logo" 
+                fill 
+                className="object-contain p-2" 
+                unoptimized
+              />
+            ) : (
+              <ImageIcon className="w-6 h-6 text-muted-foreground opacity-20" />
+            )}
+          </div>
+          <div>
+            <h2 className="text-2xl font-headline font-bold text-foreground">Strategic Analysis Report</h2>
+            <p className="text-sm text-muted-foreground font-body">Multivariate startup viability and execution assessment.</p>
+          </div>
         </div>
         <div className="flex gap-2">
            <Button 
@@ -134,10 +156,6 @@ export function FounderResults({ data, input }: FounderResultsProps) {
                 {data.geospatialStrategy}
               </p>
             </div>
-            <div className="flex items-center gap-2 text-[10px] font-code text-accent/60 italic">
-              <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-              Google Maps Logic Applied
-            </div>
           </div>
         </Card>
       </div>
@@ -178,38 +196,6 @@ export function FounderResults({ data, input }: FounderResultsProps) {
               </li>
             ))}
           </ul>
-        </Card>
-      </div>
-
-      <Card className="p-6 bg-card border-border/50">
-        <div className="flex items-center gap-2 mb-6">
-          <Map className="w-5 h-5 text-accent" />
-          <h3 className="font-headline font-semibold uppercase tracking-widest text-xs">3-Month Execution Roadmap</h3>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {data.roadmap_3_months.map((milestone: string, i: number) => (
-            <div key={i} className="relative p-5 bg-secondary/20 rounded-xl border border-border/50 group hover:border-accent/30 transition-colors">
-              <span className="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-background border border-border/50 flex items-center justify-center text-xs font-bold text-accent shadow-lg">M{i+1}</span>
-              <p className="text-sm font-body leading-tight mt-2">{milestone}</p>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="p-6 bg-card border-border/50">
-          <h3 className="font-headline font-semibold mb-4 text-accent uppercase tracking-tighter">Market Analysis</h3>
-          <p className="text-sm font-body leading-relaxed text-muted-foreground">{data.marketAnalysis}</p>
-        </Card>
-        <Card className="p-6 bg-[#1A1111] border-destructive/20 relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-10">
-            <TriangleAlert className="w-12 h-12 text-destructive" />
-          </div>
-          <div className="flex items-center gap-2 mb-4">
-            <TriangleAlert className="w-5 h-5 text-destructive" />
-            <h3 className="font-headline font-semibold text-destructive uppercase tracking-tighter">Risk Assessment</h3>
-          </div>
-          <p className="text-sm font-body leading-relaxed text-destructive-foreground/80">{data.riskAnalysis}</p>
         </Card>
       </div>
     </div>

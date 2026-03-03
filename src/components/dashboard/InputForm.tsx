@@ -17,7 +17,7 @@ import { evaluateFounderStartup } from "@/ai/flows/founder-startup-evaluation";
 import { investorInvestmentAnalysis } from "@/ai/flows/investor-investment-analysis";
 import { internStartupMatching } from "@/ai/flows/intern-startup-matching";
 import { evolutionStartupMutation } from "@/ai/flows/evolution-startup-mutation";
-import { Loader2, Play, Briefcase, Info } from "lucide-react";
+import { Loader2, Play, Briefcase, Info, Globe } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useFirestore, useCollection, useMemoFirebase, useUser } from "@/firebase";
 import { collection } from "firebase/firestore";
@@ -35,7 +35,6 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
   const { user } = useUser();
 
   const startupsQuery = useMemoFirebase(() => {
-    // Note: We don't restrict this query by user because talent needs to see all public startups
     return collection(db, "startups_for_investment");
   }, [db]);
 
@@ -56,7 +55,8 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
     availableStartups: "InnovateTech, GreenHarvest, CodeCrafters",
     marketData: "",
     competitionData: "",
-    investmentAmount: "50000"
+    investmentAmount: "50000",
+    companyUrl: ""
   });
 
   const selectedStartup = useMemo(() => {
@@ -111,7 +111,6 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
           investmentAmount: formData.investmentAmount
         });
       } else if (mode === "intern") {
-        // Use real startups from the pool if available, otherwise fallback to example data
         const startupsForMatching = startupPool && startupPool.length > 0 
           ? startupPool.map(s => `${s.name}: ${s.ideaDescription} (${s.industry})`)
           : formData.availableStartups.split(",").map(s => s.trim());
@@ -175,14 +174,6 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
               className="bg-background/50 border-border/50 min-h-[100px]"
             />
           </div>
-          <div className="p-3 bg-accent/10 border border-accent/20 rounded-lg flex items-start gap-3">
-            <Info className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
-            <p className="text-[10px] text-muted-foreground leading-tight italic">
-              {startupPool && startupPool.length > 0 
-                ? `The engine will automatically match your profile against the ${startupPool.length} startups currently in the EchelonAI pool.`
-                : "The pool is currently empty. The engine will use benchmark startup profiles for your analysis."}
-            </p>
-          </div>
         </div>
       );
     }
@@ -217,10 +208,6 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
               </div>
               <p className="text-sm font-medium">{selectedStartup.name}</p>
               <p className="text-xs text-muted-foreground line-clamp-2 italic">"{selectedStartup.ideaDescription}"</p>
-              <div className="flex justify-between items-center pt-2">
-                <span className="text-[10px] text-muted-foreground uppercase">Revenue</span>
-                <span className="text-sm font-code font-bold text-primary">${selectedStartup.currentRevenue.toLocaleString()}</span>
-              </div>
             </div>
           )}
 
@@ -234,16 +221,6 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
               onChange={handleChange} 
               className="bg-background/50 border-border/50 border-accent/30" 
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="marketData">Contextual Market Data (Optional)</Label>
-            <Textarea id="marketData" name="marketData" placeholder="Latest industry trends..." value={formData.marketData} onChange={handleChange} className="bg-background/50 border-border/50" />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="competitionData">Contextual Competition Data (Optional)</Label>
-            <Textarea id="competitionData" name="competitionData" placeholder="Recent competitor moves..." value={formData.competitionData} onChange={handleChange} className="bg-background/50 border-border/50" />
           </div>
         </div>
       );
@@ -262,6 +239,24 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
             className="bg-background/50 border-border/50 min-h-[80px]"
           />
         </div>
+
+        {(mode === "founder" || mode === "evolution") && (
+          <div className="space-y-2">
+            <Label htmlFor="companyUrl" className="flex items-center gap-1.5">
+              <Globe className="w-3 h-3" />
+              Company URL (for Branding Enrichment)
+            </Label>
+            <Input 
+              id="companyUrl" 
+              name="companyUrl" 
+              placeholder="https://acme.inc" 
+              value={formData.companyUrl} 
+              onChange={handleChange} 
+              className="bg-background/50 border-border/50" 
+            />
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="industry">Industry</Label>
@@ -283,30 +278,6 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
             <Input id="teamSize" name="teamSize" placeholder="4" value={formData.teamSize} onChange={handleChange} className="bg-background/50 border-border/50" />
           </div>
         </div>
-
-        {mode === "founder" && (
-          <div className="space-y-2">
-            <Label htmlFor="founderData">Founder Experience</Label>
-            <Textarea id="founderData" name="founderData" placeholder="Relevant skills of the team..." value={formData.founderData} onChange={handleChange} className="bg-background/50 border-border/50" />
-          </div>
-        )}
-
-        {mode === "evolution" && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="startupData">Traction Data</Label>
-              <Textarea id="startupData" name="startupData" placeholder="Current revenue, users, etc." value={formData.startupData} onChange={handleChange} className="bg-background/50 border-border/50" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="marketData">Market Data</Label>
-              <Textarea id="marketData" name="marketData" placeholder="Trends, market size..." value={formData.marketData} onChange={handleChange} className="bg-background/50 border-border/50" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="competitionData">Competition Data</Label>
-              <Textarea id="competitionData" name="competitionData" placeholder="Direct and indirect competitors..." value={formData.competitionData} onChange={handleChange} className="bg-background/50 border-border/50" />
-            </div>
-          </div>
-        )}
       </div>
     );
   };
