@@ -9,7 +9,6 @@ import { ShieldAlert, TrendingUp, Gavel, HandCoins, Users, LineChart as ChartIco
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import { createInvestmentCheckout } from "@/services/stripe-service";
 
 interface InvestorResultsProps {
   data: any;
@@ -29,20 +28,14 @@ export function InvestorResults({ data }: InvestorResultsProps) {
 
   const handleInvest = async () => {
     setIsProcessing(true);
-    try {
-      const { url } = await createInvestmentCheckout(data.startupName || "Quantum Ventures", 500);
-      if (url) {
-        window.location.href = url;
-      }
-    } catch (error: any) {
+    // Simulate intent to invest without external payment processor
+    setTimeout(() => {
       toast({
-        variant: "destructive",
-        title: "Transaction Failed",
-        description: error.message || "Neural payment link could not be established.",
+        title: "Capital Commitment Logged",
+        description: "Your investment intent has been recorded. EchelonAI will contact you for formal due diligence.",
       });
-    } finally {
       setIsProcessing(false);
-    }
+    }, 1500);
   };
 
   const chartData = data.valuationData || [

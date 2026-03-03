@@ -1,3 +1,4 @@
+
 # EchelonAI | Project Manifest & AI System Prompt
 
 ## Core Identity
@@ -11,7 +12,6 @@ EchelonAI is an **Advanced AI Startup Ecosystem Engine** designed for Founders, 
 - **Integrations**: 
   - **NewsAPI**: Real-time industry sentiment analysis (Active).
   - **Alpha Vantage**: Financial benchmarks and sector performance (Active).
-  - **Stripe**: Live investment reservation and capital commitment flow (Active).
   - **Google Maps JS API**: Geospatial Intelligence for regional strategy (Configured).
 - **UI/UX**: Tailwind CSS, ShadCN UI, Lucide Icons, Recharts (Data Visualization).
 
@@ -26,8 +26,7 @@ EchelonAI is an **Advanced AI Startup Ecosystem Engine** designed for Founders, 
    - Pulls from a live Firestore pool of registered startups.
    - Generates 5-year numerical projections (Valuation vs. Revenue).
    - Simulates recession survival and ROI.
-   - **Commit Capital**: Triggers Stripe Checkout for due diligence reservations.
-   - Visualizes growth trajectories using Recharts.
+   - **Visualized Trajectories**: Charts growth projections using Recharts.
 
 3. **Talent Mode**:
    - Performs semantic matching between user skills and the **real Firestore startup pool**.
@@ -46,5 +45,4 @@ EchelonAI is an **Advanced AI Startup Ecosystem Engine** designed for Founders, 
 ## Environment Config (Active)
 - `NEWS_API_KEY`: [Active]
 - `ALPHA_VANTAGE_API_KEY`: [Active]
-- `STRIPE_SECRET_KEY`: [Active]
 - `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`: [Configured for Maps JS API]

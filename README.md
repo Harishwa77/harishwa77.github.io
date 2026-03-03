@@ -1,3 +1,4 @@
+
 # EchelonAI | Startup Ecosystem Engine
 
 Advanced AI Startup Accelerator, VC, and Market Analyst.
@@ -10,7 +11,6 @@ Advanced AI Startup Accelerator, VC, and Market Analyst.
    - **Investor Mode**: Select a startup from the public pool and run a deep-dive investment memo with 5-year growth charts.
    - **Talent Mode**: Enter your skills to be semantically matched with the top 3 startups in the EchelonAI pool.
 3. **Register**: Founders can "Publish" their analyzed startups directly to the public pool.
-4. **Invest**: Investors can "Commit Capital" to startups they find attractive.
 
 ## 🔑 Configured Intelligence Layers
 
