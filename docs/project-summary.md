@@ -9,9 +9,10 @@ EchelonAI is an **Advanced AI Startup Ecosystem Engine** designed for Founders, 
 - **Database**: Firebase Firestore (Real-time pool & private reports)
 - **Auth**: Firebase Authentication (Anonymous & Secure)
 - **Integrations**: 
-  - **NewsAPI**: Real-time industry sentiment analysis.
-  - **Alpha Vantage**: Financial benchmarks and sector performance.
-  - **Google Maps JS API**: Geospatial Intelligence for regional strategy.
+  - **NewsAPI**: Real-time industry sentiment analysis (Active).
+  - **Alpha Vantage**: Financial benchmarks and sector performance (Active).
+  - **Stripe**: Live investment reservation and capital commitment flow (Active).
+  - **Google Maps JS API**: Geospatial Intelligence for regional strategy (Configured).
 - **UI/UX**: Tailwind CSS, ShadCN UI, Lucide Icons, Recharts (Data Visualization).
 
 ## Functional Modes
@@ -25,6 +26,7 @@ EchelonAI is an **Advanced AI Startup Ecosystem Engine** designed for Founders, 
    - Pulls from a live Firestore pool of registered startups.
    - Generates 5-year numerical projections (Valuation vs. Revenue).
    - Simulates recession survival and ROI.
+   - **Commit Capital**: Triggers Stripe Checkout for due diligence reservations.
    - Visualizes growth trajectories using Recharts.
 
 3. **Talent Mode**:
@@ -42,6 +44,7 @@ EchelonAI is an **Advanced AI Startup Ecosystem Engine** designed for Founders, 
 - `/users/{userId}/analysisReports/{reportId}`: Private AI-generated strategic reports.
 
 ## Environment Config (Active)
-- `NEWS_API_KEY`: a5c3789a-6899-4e34-9e66-614bf923aedc
-- `ALPHA_VANTAGE_API_KEY`: LBFN1L9QJ85O2W4Z
+- `NEWS_API_KEY`: [Active]
+- `ALPHA_VANTAGE_API_KEY`: [Active]
+- `STRIPE_SECRET_KEY`: [Active]
 - `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`: [Configured for Maps JS API]
