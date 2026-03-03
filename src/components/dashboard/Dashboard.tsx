@@ -6,7 +6,7 @@ import { InputForm } from "./InputForm";
 import { OutputDisplay } from "./OutputDisplay";
 import { Chatbot } from "./Chatbot";
 import { Card } from "@/components/ui/card";
-import { Zap, Shield, TrendingUp, BrainCircuit, User as UserIcon, LogOut, LogIn, Wifi, Cloud } from "lucide-react";
+import { Zap, Shield, TrendingUp, BrainCircuit, User as UserIcon, LogOut, LogIn, Wifi, Cloud, Rocket, CheckCircle2 } from "lucide-react";
 import { useUser, useAuth } from "@/firebase";
 import { initiateAnonymousSignIn } from "@/firebase/non-blocking-login";
 import { Button } from "@/components/ui/button";
@@ -126,6 +126,28 @@ export function Dashboard() {
               onLoading={setIsLoading}
               isLoading={isLoading}
             />
+          </Card>
+
+          <Card className="p-6 bg-[#0B0E14] border-primary/20 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 -m-8 opacity-5 group-hover:opacity-10 transition-opacity">
+              <Rocket className="w-32 h-32 text-primary" />
+            </div>
+            <div className="flex items-center gap-2 mb-4">
+              <Cloud className="w-5 h-5 text-primary" />
+              <h3 className="text-sm font-headline font-semibold uppercase tracking-widest text-primary">Cloud Deployment</h3>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg border border-primary/20">
+                <CheckCircle2 className="w-4 h-4 text-primary" />
+                <span className="text-xs font-headline font-bold">App Hosting Enabled</span>
+              </div>
+              <p className="text-[11px] font-body text-muted-foreground leading-relaxed">
+                This project is configured for <span className="text-foreground">Firebase App Hosting</span>. Production keys for Alpha Vantage and NewsAPI are secured via environment secrets.
+              </p>
+              <div className="pt-2">
+                <p className="text-[10px] font-code text-accent uppercase tracking-tighter">Status: Development Instance</p>
+              </div>
+            </div>
           </Card>
 
           <div className="grid grid-cols-1 gap-4">
