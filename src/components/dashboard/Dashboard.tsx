@@ -5,7 +5,12 @@ import { ModeSelector } from "./ModeSelector";
 import { InputForm } from "./InputForm";
 import { OutputDisplay } from "./OutputDisplay";
 import { Card } from "@/components/ui/card";
-import { Zap, Shield, TrendingUp, Users, BrainCircuit } from "lucide-react";
+import { Zap, Shield, TrendingUp, BrainCircuit, User as UserIcon, LogOut, LogIn } from "lucide-react";
+import { useUser, useAuth } from "@/firebase";
+import { initiateAnonymousSignIn } from "@/firebase/non-blocking-login";
+import { Button } from "@/components/ui/button";
+import { signOut } from "firebase/auth";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export type EngineMode = "founder" | "investor" | "intern" | "evolution";
 
@@ -13,12 +18,23 @@ export function Dashboard() {
   const [mode, setMode] = useState<EngineMode>("founder");
   const [results, setResults] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  const { user, isUserLoading } = useUser();
+  const auth = useAuth();
+
+  const handleSignIn = () => {
+    initiateAnonymousSignIn(auth);
+  };
+
+  const handleSignOut = () => {
+    signOut(auth);
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 md:py-12 space-y-8">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/50 pb-8">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2">
             <div className="bg-primary p-2 rounded-lg shadow-lg shadow-primary/20">
               <BrainCircuit className="w-6 h-6 text-primary-foreground" />
             </div>
@@ -30,7 +46,31 @@ export function Dashboard() {
             Advanced AI Startup Ecosystem Engine. Strategic intelligence for founders, investors, and talent.
           </p>
         </div>
-        <div className="flex gap-4">
+        
+        <div className="flex flex-col items-end gap-4">
+          {isUserLoading ? (
+            <div className="h-10 w-32 bg-secondary animate-pulse rounded-lg" />
+          ) : user ? (
+            <div className="flex items-center gap-3 bg-secondary/30 p-2 rounded-xl border border-border/50">
+              <Avatar className="h-8 w-8 border border-border">
+                <AvatarFallback className="bg-primary/20 text-primary">
+                  <UserIcon className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="text-left hidden sm:block">
+                <p className="text-xs font-headline font-bold uppercase tracking-tighter opacity-70">Authenticated</p>
+                <p className="text-[10px] font-code text-accent truncate max-w-[100px]">{user.uid}</p>
+              </div>
+              <Button variant="ghost" size="icon" onClick={handleSignOut} className="h-8 w-8 text-muted-foreground hover:text-destructive">
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <Button onClick={handleSignIn} variant="outline" className="gap-2 font-headline uppercase tracking-wider text-xs border-primary/50 hover:bg-primary/10">
+              <LogIn className="h-4 w-4" />
+              Secure Connect
+            </Button>
+          )}
           <ModeSelector currentMode={mode} onModeChange={(m) => {
             setMode(m);
             setResults(null);
@@ -53,7 +93,6 @@ export function Dashboard() {
             />
           </Card>
 
-          {/* Sidebar Stats / Info */}
           <div className="grid grid-cols-1 gap-4">
             <div className="p-4 rounded-lg bg-secondary/30 border border-border/30 flex items-center gap-4">
               <Shield className="w-8 h-8 text-primary opacity-80" />
