@@ -1,12 +1,15 @@
+
 "use client";
 
+import React, { useState } from "react";
 import { ScoreGrid } from "../ScoreGrid";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ShieldAlert, TrendingUp, Gavel, HandCoins, Users, LineChart as ChartIcon } from "lucide-react";
+import { ShieldAlert, TrendingUp, Gavel, HandCoins, Users, LineChart as ChartIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { createInvestmentCheckout } from "@/services/stripe-service";
 
 interface InvestorResultsProps {
   data: any;
@@ -14,6 +17,7 @@ interface InvestorResultsProps {
 
 export function InvestorResults({ data }: InvestorResultsProps) {
   const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const getRecommendationColor = (rec: string) => {
     if (!rec) return "bg-secondary text-muted-foreground";
@@ -23,11 +27,22 @@ export function InvestorResults({ data }: InvestorResultsProps) {
     return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
   };
 
-  const handleInvest = () => {
-    toast({
-      title: "Investment Committed",
-      description: "Your investment interest has been logged for this startup.",
-    });
+  const handleInvest = async () => {
+    setIsProcessing(true);
+    try {
+      const { url } = await createInvestmentCheckout(data.startupName || "Quantum Ventures", 500);
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Transaction Failed",
+        description: error.message || "Neural payment link could not be established.",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const chartData = data.valuationData || [
@@ -49,9 +64,17 @@ export function InvestorResults({ data }: InvestorResultsProps) {
           <Badge className={getRecommendationColor(data.recommendation)}>
             {data.recommendation || "Pending"}
           </Badge>
-          <Button onClick={handleInvest} className="bg-accent hover:bg-accent/90 text-accent-foreground font-headline font-bold uppercase tracking-wider text-xs h-10 px-6 shadow-lg shadow-accent/20">
-            <HandCoins className="w-4 h-4 mr-2" />
-            Commit Capital
+          <Button 
+            onClick={handleInvest} 
+            disabled={isProcessing}
+            className="bg-accent hover:bg-accent/90 text-accent-foreground font-headline font-bold uppercase tracking-wider text-xs h-10 px-6 shadow-lg shadow-accent/20"
+          >
+            {isProcessing ? (
+              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+            ) : (
+              <HandCoins className="w-4 h-4 mr-2" />
+            )}
+            {isProcessing ? "Processing..." : "Commit Capital"}
           </Button>
         </div>
       </div>
