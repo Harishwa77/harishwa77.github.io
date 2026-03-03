@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -5,9 +6,10 @@ import { ScoreGrid } from "../ScoreGrid";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, AlertTriangle, Lightbulb, TrendingUp, Cpu, Map, Globe, Loader2 } from "lucide-react";
-import { useFirestore, useUser } from "@/firebase";
+import { CheckCircle2, AlertTriangle, Lightbulb, TrendingUp, Cpu, Map, Globe, Loader2, ShieldCheck } from "lucide-react";
+import { useFirestore, useUser, useAuth } from "@/firebase";
 import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
+import { initiateAnonymousSignIn } from "@/firebase/non-blocking-login";
 import { collection, serverTimestamp } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
@@ -18,23 +20,24 @@ interface FounderResultsProps {
 
 export function FounderResults({ data, input }: FounderResultsProps) {
   const { user } = useUser();
+  const auth = useAuth();
   const db = useFirestore();
   const { toast } = useToast();
   const [isPublishing, setIsPublishing] = useState(false);
 
   const handlePublish = async () => {
     if (!user) {
+      // Automatically initiate sign-in if user isn't connected
+      initiateAnonymousSignIn(auth);
       toast({
-        variant: "destructive",
-        title: "Authentication Required",
-        description: "Please connect your wallet/account to register your startup.",
+        title: "Establishing Connection",
+        description: "We are creating a secure session for you. Please click 'Register' again once connected.",
       });
       return;
     }
 
     setIsPublishing(true);
     try {
-      // Create a comprehensive startup object using both AI refinements and original form data
       const startupData = {
         founderId: user.uid,
         name: `${input.industry || 'Unnamed'} Venture - ${Math.floor(Math.random() * 1000)}`,
@@ -51,11 +54,10 @@ export function FounderResults({ data, input }: FounderResultsProps) {
       addDocumentNonBlocking(collection(db, "startups_for_investment"), startupData);
       
       toast({
-        title: "Startup Registered",
-        description: "Your venture is now visible to the investor network!",
+        title: "Success: Startup Registered",
+        description: "Your venture has been added to the investment pool.",
       });
     } catch (e) {
-      console.error("Publish Error:", e);
       toast({
         variant: "destructive",
         title: "Registration Failed",
@@ -73,10 +75,16 @@ export function FounderResults({ data, input }: FounderResultsProps) {
         <Button 
           onClick={handlePublish} 
           disabled={isPublishing}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground font-headline font-bold uppercase tracking-wider text-xs gap-2"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground font-headline font-bold uppercase tracking-wider text-xs gap-2 min-w-[200px]"
         >
-          {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
-          Register for Investment
+          {isPublishing ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : user ? (
+            <Globe className="w-4 h-4" />
+          ) : (
+            <ShieldCheck className="w-4 h-4" />
+          )}
+          {user ? "Register for Investment" : "Connect & Register"}
         </Button>
       </div>
 
