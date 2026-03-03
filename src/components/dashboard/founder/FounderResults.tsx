@@ -5,7 +5,7 @@ import { ScoreGrid } from "../ScoreGrid";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CircleCheck, TriangleAlert, Lightbulb, TrendingUp, Cpu, Map, Globe, Loader2, ShieldCheck, Link2, MapPin } from "lucide-react";
+import { CircleCheck, TriangleAlert, Lightbulb, TrendingUp, Cpu, Map, Globe, Loader2, ShieldCheck, Link2, MapPin, Navigation } from "lucide-react";
 import { useFirestore, useUser, useAuth } from "@/firebase";
 import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { initiateAnonymousSignIn } from "@/firebase/non-blocking-login";
@@ -93,8 +93,8 @@ export function FounderResults({ data, input }: FounderResultsProps) {
 
       <ScoreGrid scores={data.scores} />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="p-6 bg-card border-border/50 space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <Card className="p-6 bg-card border-border/50 lg:col-span-7 space-y-4">
           <div className="flex items-center gap-2">
             <CircleCheck className="w-5 h-5 text-accent" />
             <h3 className="font-headline font-semibold">Evaluation & Improved Concept</h3>
@@ -111,16 +111,33 @@ export function FounderResults({ data, input }: FounderResultsProps) {
           </div>
         </Card>
 
-        <Card className="p-6 bg-card border-border/50 space-y-4">
-          <div className="flex items-center gap-2">
+        <Card className="p-6 bg-[#0B0E14] border-accent/20 lg:col-span-5 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 -m-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Navigation className="w-32 h-32 text-accent" />
+          </div>
+          <div className="flex items-center gap-2 mb-4">
             <MapPin className="w-5 h-5 text-accent" />
             <h3 className="font-headline font-semibold">Geospatial Intelligence</h3>
           </div>
-          <div className="p-4 rounded-xl bg-accent/5 border border-accent/20">
-            <p className="text-[10px] text-accent mb-2 font-headline uppercase tracking-wider font-bold">Regional Strategy: {input.region}</p>
-            <p className="text-sm font-body leading-relaxed text-foreground/80">
-              {data.geospatialStrategy}
-            </p>
+          <div className="space-y-4 relative z-10">
+            <div className="flex items-center gap-3 p-3 bg-accent/10 rounded-lg border border-accent/20">
+              <div className="bg-accent/20 p-2 rounded">
+                <Globe className="w-4 h-4 text-accent" />
+              </div>
+              <div>
+                <p className="text-[10px] text-accent uppercase font-bold tracking-widest">Active Region</p>
+                <p className="text-sm font-headline font-bold">{input.region || "Global Market"}</p>
+              </div>
+            </div>
+            <div className="p-4 rounded-xl bg-background/40 border border-border/50">
+              <p className="text-[11px] font-body leading-relaxed text-foreground/80">
+                {data.geospatialStrategy}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-[10px] font-code text-accent/60 italic">
+              <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+              Google Maps Logic Applied
+            </div>
           </div>
         </Card>
       </div>
@@ -198,4 +215,3 @@ export function FounderResults({ data, input }: FounderResultsProps) {
     </div>
   );
 }
-
