@@ -6,13 +6,14 @@ import { InputForm } from "./InputForm";
 import { OutputDisplay } from "./OutputDisplay";
 import { Chatbot } from "./Chatbot";
 import { Card } from "@/components/ui/card";
-import { Zap, Shield, TrendingUp, BrainCircuit, User as UserIcon, LogOut, LogIn, Wifi, Cloud, Rocket, CheckCircle2 } from "lucide-react";
+import { Zap, Shield, TrendingUp, BrainCircuit, User as UserIcon, LogOut, LogIn, Wifi, Cloud, Rocket, CheckCircle2, Github, GitBranch } from "lucide-react";
 import { useUser, useAuth } from "@/firebase";
 import { initiateAnonymousSignIn } from "@/firebase/non-blocking-login";
 import { Button } from "@/components/ui/button";
 import { signOut } from "firebase/auth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 
 export type EngineMode = "founder" | "investor" | "intern" | "evolution";
 
@@ -48,6 +49,9 @@ export function Dashboard() {
             <h1 className="text-3xl md:text-4xl font-headline font-bold tracking-tight text-foreground">
               ECHELON<span className="text-accent">AI</span>
             </h1>
+            <Badge variant="outline" className="ml-2 border-primary/30 text-primary font-code text-[10px] uppercase tracking-tighter">
+              v1.0 Stable
+            </Badge>
             <div className="ml-4 flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/50 border border-border/50">
               <TooltipProvider>
                 <Tooltip>
@@ -61,23 +65,16 @@ export function Dashboard() {
                 </Tooltip>
               </TooltipProvider>
             </div>
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
-               <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger className="flex items-center gap-1.5">
-                    <Cloud className="w-3 h-3 text-primary" />
-                    <span className="text-[10px] font-headline font-bold uppercase tracking-widest opacity-70">Cloud Ready</span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-xs">Firebase App Hosting Configured</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+          </div>
+          <div className="flex items-center gap-4 text-muted-foreground">
+            <p className="font-body max-w-xl text-sm leading-relaxed">
+              Advanced AI Startup Ecosystem Engine. Strategic intelligence for founders, investors, and talent.
+            </p>
+            <div className="hidden md:flex items-center gap-2 text-[10px] font-code uppercase opacity-40">
+              <GitBranch className="w-3 h-3" />
+              main branch
             </div>
           </div>
-          <p className="text-muted-foreground font-body max-w-xl text-sm leading-relaxed">
-            Advanced AI Startup Ecosystem Engine. Strategic intelligence for founders, investors, and talent.
-          </p>
         </div>
         
         <div className="flex flex-col items-end gap-4">
@@ -105,6 +102,18 @@ export function Dashboard() {
                 Secure Connect
               </Button>
             )}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="icon" className="h-10 w-10 border-border/50 opacity-50 hover:opacity-100">
+                    <Github className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">Source Control Initialized</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <ModeSelector currentMode={mode} onModeChange={(m) => {
             setMode(m);
@@ -144,8 +153,12 @@ export function Dashboard() {
               <p className="text-[11px] font-body text-muted-foreground leading-relaxed">
                 This project is configured for <span className="text-foreground">Firebase App Hosting</span>. Production keys for Alpha Vantage and NewsAPI are secured via environment secrets.
               </p>
-              <div className="pt-2">
-                <p className="text-[10px] font-code text-accent uppercase tracking-tighter">Status: Development Instance</p>
+              <div className="pt-2 flex items-center justify-between">
+                <p className="text-[10px] font-code text-accent uppercase tracking-tighter">Status: v1.0 Committed</p>
+                <div className="flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                  <span className="text-[9px] font-code text-muted-foreground">READY FOR PUSH</span>
+                </div>
               </div>
             </div>
           </Card>

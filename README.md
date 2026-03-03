@@ -26,7 +26,7 @@ git commit -m "feat: echelon-ai v1.0 launch"
 ### 2. Create a GitHub Repository
 1. Go to [GitHub](https://github.com/new).
 2. Name your repository (e.g., `echelon-ai`).
-3. Leave it public or private, then click **Create repository**.
+3. Click **Create repository** (Keep it Public or Private).
 4. Copy the repository URL (e.g., `https://github.com/your-username/echelon-ai.git`).
 
 ### 3. Connect and Push
@@ -41,13 +41,13 @@ git push -u origin main
 1. Go to the [Firebase Console](https://console.firebase.google.com/).
 2. Select your project.
 3. Navigate to **App Hosting** in the left sidebar.
-4. Click **Get Started** or **Create Backend**.
+4. Click **Create Backend**.
 5. Select your GitHub account and the `echelon-ai` repository.
-6. **Environment Secrets**: This is CRITICAL. In the App Hosting dashboard, add these secrets so the AI functions in production:
+6. **Environment Secrets**: In the App Hosting dashboard, add these secrets so the AI functions in production:
    - `NEWS_API_KEY`: Your NewsAPI key.
    - `ALPHA_VANTAGE_API_KEY`: Your Alpha Vantage key.
    - `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`: Your Google Maps JS API key.
-7. Click **Finish and Deploy**. Firebase will build your site and provide a live `.web.app` URL.
+7. Click **Finish and Deploy**. Firebase will build your site and provide a live URL.
 
 ## 🔑 Intelligence Layers
 
