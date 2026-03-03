@@ -1,3 +1,4 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -82,15 +83,15 @@ service cloud.firestore {
     }
 
     /**
-     * @description Publicly listable startups for investment. Founders manage their own; Investors can read all.
+     * @description Publicly listable startups for investment. Anyone signed in can list the pool.
      * @path /startups_for_investment/{startupId}
-     * @allow (list) User with 'investor' role lists all investment opportunities.
+     * @allow (list) Any authenticated user can browse the investment pool.
      * @deny (update) User 'investor_1' tries to change the revenue of a startup they don't own.
-     * @principle Role-Based Read / Owner-Only Write: Combines profile lookups for readers and field-validation for writers.
+     * @principle Discovery for All / Owner-Only Write: Allows ecosystem discovery while protecting data integrity.
      */
     match /startups_for_investment/{startupId} {
-      // Investors can see everything; Founders can see their own (and others, typically in this model).
-      allow get, list: if isSignedIn() && (hasRole('investor') || isOwner(resource.data.founderId));
+      // Allow browsing by any authenticated user for discovery
+      allow get, list: if isSignedIn();
       
       // Only the founder can create or modify their investment listing.
       allow create: if isSignedIn() && request.resource.data.founderId == request.auth.uid;

@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
@@ -19,7 +20,7 @@ import { internStartupMatching } from "@/ai/flows/intern-startup-matching";
 import { evolutionStartupMutation } from "@/ai/flows/evolution-startup-mutation";
 import { Loader2, Play, Users, Briefcase } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useFirestore, useCollection, useMemoFirebase } from "@/firebase";
+import { useFirestore, useCollection, useMemoFirebase, useUser } from "@/firebase";
 import { collection } from "firebase/firestore";
 
 interface InputFormProps {
@@ -32,10 +33,13 @@ interface InputFormProps {
 export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: InputFormProps) {
   const { toast } = useToast();
   const db = useFirestore();
+  const { user } = useUser();
 
   const startupsQuery = useMemoFirebase(() => {
+    // Only query if the user is authenticated to satisfy security rules
+    if (!user) return null;
     return collection(db, "startups_for_investment");
-  }, [db]);
+  }, [db, user]);
 
   const { data: startupPool, isLoading: isPoolLoading } = useCollection(startupsQuery);
   const [selectedStartupId, setSelectedStartupId] = useState<string>("");
@@ -181,7 +185,7 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
             <Label>Select Startup from Pool</Label>
             <Select onValueChange={setSelectedStartupId} value={selectedStartupId}>
               <SelectTrigger className="bg-background/50 border-border/50">
-                <SelectValue placeholder={isPoolLoading ? "Loading pool..." : "Select a startup"} />
+                <SelectValue placeholder={!user ? "Connect to browse pool" : (isPoolLoading ? "Loading pool..." : "Select a startup")} />
               </SelectTrigger>
               <SelectContent>
                 {startupPool?.map((startup) => (
